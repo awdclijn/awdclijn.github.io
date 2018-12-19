@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="《Flink基础教程》--读书笔记1"><meta name="keywords" content="java,Flink"><meta name="author" content="keon,undefined"><meta name="copyright" content="keon"><title>《Flink基础教程》--读书笔记1 | keon随便写写</title><link rel="shortcut icon" href="/my-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.5.6"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css?version=1.5.6"><link rel="dns-prefetch" href="https://cdn.staticfile.org"><link rel="dns-prefetch" href="https://cdn.bootcss.com"><link rel="dns-prefetch" href="https://creativecommons.org"><link rel="dns-prefetch" href="https://hm.baidu.com"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?ae0586f75159e5097cb79871b2fdb3a1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();</script><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  }
+} </script></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.png"></div><div class="author-info__name text-center">keon</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">10</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">4</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">3</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://raw.githubusercontent.com/awdclijn/awdclijn.github.io/master/img/kim-holtermand-reflections.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">keon随便写写</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus"><a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span></div><div id="post-info"><div id="post-title">《Flink基础教程》--读书笔记1</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2018-12-05</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/读书笔记/">读书笔记</a><i class="fa fa-angle-right" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/读书笔记/Flink基础教程/">Flink基础教程</a><div class="post-meta-wordcount"><span>字数总计: </span><span class="word-count">863</span><span class="post-meta__separator">|</span><span>阅读时长: 3 分钟</span></div></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>流处理的优势：</p>
+<ol>
+<li>能够以非常低的延迟处理数据</li>
+<li>较低的成本能带来较好的容错性</li>
+</ol>
+<p>流式技术的发展<br><img src="https://ws2.sinaimg.cn/large/006tNbRwgy1fxw3ydcisfj311o0u0wq4.jpg" alt=""></p>
+<p>Flink架构<br><img src="https://ws2.sinaimg.cn/large/006tNbRwgy1fxw40pqbjyj313o0q8ae9.jpg" alt=""></p>
+<p>Flink的分布式特点体现在它能够在成百上千台机器上运行，它将大型的计算任务分成许多小的部分，每个机器执行一个部分。Flink 能够自动地确保在发生机器故障或者其他错误时计算能持续进行，或者在修复bug或进行版本升级后有计划地再执行一次。这种能力使得开发人员不需要担心失败。Flink本质上使用容错性数据流，这使得开发人员可以分析持续生成且永远不结束的数据(即流处理)。</p>
+<p>Flink常用的架构：</p>
+<ol>
+<li>数据传输层<br>1） 高性能及持久化：作为数据缓冲区，将短时间的数据保留，持久化的特性使得消息可以重播。<br>2） 将生产者和消费者进行解耦： 可以支持从多个源收集数据，并把数据提供给多个服务使用。</li>
+<li>流处理层</li>
+</ol>
+<a id="more"></a>
+<p>事件时间 是事件创建的时间。它通常由事件中的时间戳描述，例如附接在生产传感器，或者生产服务。Flink通过时间戳分配器访问事件时间戳。<br>摄入时间 是事件进入Flink数据流源算符的时间。<br>处理事件 是每一个执行时间操作的算符的本地时间。</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNbRwgy1fyb8xxrnlpj310s0h2whf.jpg" alt=""></p>
+<p>窗口</p>
+<ol>
+<li><p>时间窗口，有滚动窗口和滑动窗口，滚动按结束时间，滑动按开始时间。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stream.timeWindow(Time.minutes(<span class="number">1</span>), Time.seconds(<span class="number">30</span>))</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>计数窗口，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stream.countWindow(<span class="number">4</span>, <span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>会话窗口，用户与网站进行一系列 交互(活动阶段)之后，关闭浏览器或者不再交互(非活动阶段)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stream.window(SessionWindows.withGap(Time.minutes(<span class="number">5</span>))</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p><img src="https://ws1.sinaimg.cn/large/006tNbRwgy1fyb8zk6y9ej30ya06ujs4.jpg" alt=""></p>
+<p>水印<br>表示当前不会再有比水印时间早的流水，具体见如下链接：<br><a href="https://blog.csdn.net/a6822342/article/details/78064815" target="_blank" rel="noopener">https://blog.csdn.net/a6822342/article/details/78064815</a></p>
+<p>状态<br>流式计算分为无状态和有状态两种情况。无状态的计算观察每个独立事件，并根据最后一个事件输出结果。有状态的计算则会基于多个事件输出结果。</p>
+<p>一致性</p>
+<ul>
+<li>at-most-once:这其实是没有正确性保障的委婉说法——故障发生之后，计数结果可能丢失。</li>
+<li>at-least-once:这表示计数结果可能大于正确值，但绝不会小于正确值。也就是说，计数程序在发生故障后可能多算，但是绝不会少算。</li>
+<li>exactly-once:这指的是系统保证在发生故障后得到的计数结果与正确值一致。</li>
+</ul>
+<p>容错检查点</p>
+<p>Flink使用 流重放 与 Checkpoint 的结合实现了容错。Checkpoint与每一个输入流及其相关的每一个算符的状态的特定点相关联。一个流数据流可以可以从一个checkpoint恢复出来，其中通过恢复算符状态并从检查点重放事件以保持一致性（一次处理语义）<br>检查点间隔是以恢复时间（需要重放的事件数量）来消除执行过程中容错的开销的一种手段。</p>
+<p>Flink基础教程比较薄，对介绍的特性也是点到即止。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">keon</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://awdclijn.github.io/2018/12/05/《Flink基础教程》-读书笔记1/">https://awdclijn.github.io/2018/12/05/《Flink基础教程》-读书笔记1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://awdclijn.github.io" target="_blank">keon随便写写</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java/">java</a><a class="post-meta__tags" href="/tags/Flink/">Flink</a></div><nav id="pagination"><div class="next-post pull-right"><a href="/2018/11/09/论软件可靠性设计技术的应用/"><span>论软件可靠性设计技术的应用</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2018 By keon</div><div class="framework-info"><span>驱动 - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="/js/third-party/anime.min.js"></script><script src="/js/third-party/jquery.min.js"></script><script src="/js/third-party/jquery.fancybox.min.js"></script><script src="/js/third-party/velocity.min.js"></script><script src="/js/third-party/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.5.6"></script><script src="/js/fancybox.js?version=1.5.6"></script><script src="/js/sidebar.js?version=1.5.6"></script><script src="/js/copy.js?version=1.5.6"></script><script src="/js/fireworks.js?version=1.5.6"></script><script src="/js/transition.js?version=1.5.6"></script><script src="/js/scroll.js?version=1.5.6"></script><script src="/js/head.js?version=1.5.6"></script></body></html>
