@@ -19,6 +19,7 @@
 <li>较低的成本能带来较好的容错性</li>
 </ol>
 <p>流式技术的发展<br><img src="https://ws2.sinaimg.cn/large/006tNbRwgy1fxw3ydcisfj311o0u0wq4.jpg" alt=""></p>
+<a id="more"></a>
 <p>Flink架构<br><img src="https://ws2.sinaimg.cn/large/006tNbRwgy1fxw40pqbjyj313o0q8ae9.jpg" alt=""></p>
 <p>Flink的分布式特点体现在它能够在成百上千台机器上运行，它将大型的计算任务分成许多小的部分，每个机器执行一个部分。Flink 能够自动地确保在发生机器故障或者其他错误时计算能持续进行，或者在修复bug或进行版本升级后有计划地再执行一次。这种能力使得开发人员不需要担心失败。Flink本质上使用容错性数据流，这使得开发人员可以分析持续生成且永远不结束的数据(即流处理)。</p>
 <p>Flink常用的架构：</p>
@@ -26,7 +27,6 @@
 <li>数据传输层<br>1） 高性能及持久化：作为数据缓冲区，将短时间的数据保留，持久化的特性使得消息可以重播。<br>2） 将生产者和消费者进行解耦： 可以支持从多个源收集数据，并把数据提供给多个服务使用。</li>
 <li>流处理层</li>
 </ol>
-<a id="more"></a>
 <p>事件时间 是事件创建的时间。它通常由事件中的时间戳描述，例如附接在生产传感器，或者生产服务。Flink通过时间戳分配器访问事件时间戳。<br>摄入时间 是事件进入Flink数据流源算符的时间。<br>处理事件 是每一个执行时间操作的算符的本地时间。</p>
 <p><img src="https://ws4.sinaimg.cn/large/006tNbRwgy1fyb8xxrnlpj310s0h2whf.jpg" alt=""></p>
 <p>窗口</p>
