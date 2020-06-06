@@ -1,37 +1,224 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="《Kafka技术内幕》--读书笔记1"><meta name="keywords" content="java,kafka,Kafka技术内幕"><meta name="author" content="keon,undefined"><meta name="copyright" content="keon"><title>《Kafka技术内幕》--读书笔记1 | keon随便写写</title><link rel="shortcut icon" href="/my-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.5.6"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css?version=1.5.6"><link rel="dns-prefetch" href="https://cdn.staticfile.org"><link rel="dns-prefetch" href="https://cdn.bootcss.com"><link rel="dns-prefetch" href="https://creativecommons.org"><link rel="dns-prefetch" href="https://hm.baidu.com"><script>var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?ae0586f75159e5097cb79871b2fdb3a1";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();</script><script>var GLOBAL_CONFIG = { 
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  copy: {
-    success: '复制成功',
-    error: '复制错误',
-    noSupport: '浏览器不支持'
-  }
-} </script></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#基本概念"><span class="toc-number">1.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#分区模型"><span class="toc-number">2.</span> <span class="toc-text">分区模型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#消费模型"><span class="toc-number">3.</span> <span class="toc-text">消费模型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#分布式模型"><span class="toc-number">4.</span> <span class="toc-text">分布式模型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#其他设计"><span class="toc-number">5.</span> <span class="toc-text">其他设计</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#持久化"><span class="toc-number">5.1.</span> <span class="toc-text">持久化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#生产者与消费者"><span class="toc-number">5.2.</span> <span class="toc-text">生产者与消费者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#副本和容错"><span class="toc-number">5.3.</span> <span class="toc-text">副本和容错</span></a></li></ol></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.png"></div><div class="author-info__name text-center">keon</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">10</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">4</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">3</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://raw.githubusercontent.com/awdclijn/awdclijn.github.io/master/img/kim-holtermand-reflections.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">keon随便写写</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus"><a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span></div><div id="post-info"><div id="post-title">《Kafka技术内幕》--读书笔记1</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2018-07-15</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/读书笔记/">读书笔记</a><i class="fa fa-angle-right" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/读书笔记/Kafka技术内幕/">Kafka技术内幕</a><div class="post-meta-wordcount"><span>字数总计: </span><span class="word-count">1,517</span><span class="post-meta__separator">|</span><span>阅读时长: 4 分钟</span></div></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><ul>
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="keon">
+  <meta name="keywords" content="">
+  <title>《Kafka技术内幕》--读书笔记1 - keon随便写写</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>keon随便写写</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2018-07-15 10:08">
+      2018年7月15日 上午
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      15
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h1><ul>
 <li>生产者 (producer)应用程序发布事件流到Kafka的一个或多个主题。</li>
 <li>消费者 (consumer)应用程序订阅Kafka的一个或多个主题，并处理事件流。</li>
 <li>连接器 (connector)将Kafka主题和已有数据源进行连接，数据可以互相导人和导出 。</li>
 <li>流处理 (processor)从Kafka主题消费输入流，经过处理后，产生输出流到输出主题。</li>
 </ul>
-<p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1ftax17fddej30u00liqg7.jpg" alt=""></p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1ftax17fddej30u00liqg7.jpg" srcset="/img/loading.gif" alt=""></p>
 <a id="more"></a>
 <h1 id="分区模型"><a href="#分区模型" class="headerlink" title="分区模型"></a>分区模型</h1><p>Kafka集群向多个消息代理服务器(broker server)组成，发布至UKafka集群的每条消息都有一个类别，用主题(topic)来表示。</p>
 <p>Kafka集群为每个主题维护了分布式的分区(partition)日志文件，物理意义上可以把主题看作分区的日志文件(partitioned log)。 每个分区都是一个有序的、不可变的记录序列，新的消息会不断追加到提交日志(commit log)。分区中的每条消息都会按照时间顺序分配到一个单调递增的顺序编号，叫作偏移盘(offset)，这个偏移量能够唯一地定位当前分区中的每一条消息 。</p>
-<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1ftbzeenfd4j311m0hg7gu.jpg" alt=""></p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1ftbzeenfd4j311m0hg7gu.jpg" srcset="/img/loading.gif" alt=""></p>
 <p>Kafka以分区作为最小的粒度，将每个分区分配给消费组中不同的而且是唯一的消费者，并确保一个分区只 属于一个消费者，即这个消费者就是这个分区的唯一读取线程 。 </p>
-<h1 id="消费模型"><a href="#消费模型" class="headerlink" title="消费模型"></a>消费模型</h1><p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1ftbzoyt51tj30wm0do46g.jpg" alt=""></p>
+<h1 id="消费模型"><a href="#消费模型" class="headerlink" title="消费模型"></a>消费模型</h1><p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1ftbzoyt51tj30wm0do46g.jpg" srcset="/img/loading.gif" alt=""></p>
 <p>Kafka采用拉取模型，由消费者向己记录消费状态，每个消费者五相独立地顺序读取每个分区的消息。<br>生产者发布的所有消息会一直保存在Kafka集群中，不管消息有没有被消费。 用户可以通过设置保留时间来清理过期的数据。</p>
 <h1 id="分布式模型"><a href="#分布式模型" class="headerlink" title="分布式模型"></a>分布式模型</h1><p>Kafka每个主题的多个分区日志分布式地存储在Kafka集群上，同时为了故障容错，每个分区都会以副本的方式复制到多个消息代理节点上。其中一个节点会作为主副本(Leader)，其他节点作为备份副本(Follower，也叫作从副本)。主副本会负责所有的客户端读写操作，备份副本仅仅从主副本同步数据。当主副本 出现故障时，备份副本中的一个副本会被选择为新的主副本 。</p>
 <p>分区是消费者线程模型的最小并行单位。</p>
-<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1ftbzzepul7j31cm0dm16c.jpg" alt=""></p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1ftbzzepul7j31cm0dm16c.jpg" srcset="/img/loading.gif" alt=""></p>
 <h1 id="其他设计"><a href="#其他设计" class="headerlink" title="其他设计"></a>其他设计</h1><h2 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h2><p>使用“零拷贝技术”(zero-copy)只需将磁盘文件的数据复制到页面缓存中一次，然后将数据从页面缓存直接发送到网络中(发送给不同的使用者时，都可以重复使用同一个页面缓存)，避免了重复的复制操作。</p>
-<p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1ftc0gx0ft5j31b00o0qp3.jpg" alt=""></p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1ftc0gx0ft5j31b00o0qp3.jpg" srcset="/img/loading.gif" alt=""></p>
 <h2 id="生产者与消费者"><a href="#生产者与消费者" class="headerlink" title="生产者与消费者"></a>生产者与消费者</h2><p>Kafka的生产者将消息直接发送给分区主副本所在的消息代理节点，并不需要经过任何的中间路由层。为了做到这一点，所有消息代理节点都会保存一份相同的元数据，这份元数据记录了每个主题分区对应的主副本节点。生产者客户端在发送消息之前，会向任意一个代理节点请求元数据，井确定每条消息对应的目标节点然后把消息直接发送给对应的目标节点 。</p>
 <p>生产者采用批量发送消息集的方式解决了网络请求过多的问题。生产者会尝试在内存中收集足够数据，并在一个请求中一次性发送一批数据。</p>
 <p>Kafka采用了基于拉取模型的消费状态处理，它将主题分成多个有序的分区，任何时刻每个分区都只被一个消费者使用。并且，消费者会记录每个分区的消费进度(即偏移量)。Kafka的消费者会定时地将分区的消费进度保存成检<br>查点文件，表示“这个位置之前的消息都已经被消费过了”</p>
@@ -44,4 +231,268 @@
 </ul>
 <p>如果一个备份副本挂掉、没有响应或者落后太多，主副本就会将其从同步副本集合中移除。反之，如果备份副本重新赶上主副本，它就会加入到主副本的 同步集合中。</p>
 <p>在Kafka中，一条消息只有被ISR集合的所有副本都运用到本地的日志文件，才会认为消息被成功提交了。任何时刻，只要ISR至少有一个副本是存活的， Kafka就可以保证“一条消息一旦被提交，就不会丢失”。只有已经提交的消息才能被消费者消费，因此消费者不用担心会看到因为主副本失败而丢失的消息。</p>
-</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">keon</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://awdclijn.github.io/2018/07/15/《Kafka技术内幕》-读书笔记1/">https://awdclijn.github.io/2018/07/15/《Kafka技术内幕》-读书笔记1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://awdclijn.github.io" target="_blank">keon随便写写</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java/">java</a><a class="post-meta__tags" href="/tags/kafka/">kafka</a><a class="post-meta__tags" href="/tags/Kafka技术内幕/">Kafka技术内幕</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2018/07/18/《Kafka技术内幕》-读书笔记2/"><i class="fa fa-chevron-left">  </i><span>《Kafka技术内幕》--读书笔记2</span></a></div><div class="next-post pull-right"><a href="/2018/07/13/hello-world/"><span>Hello World</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2018 By keon</div><div class="framework-info"><span>驱动 - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="/js/third-party/anime.min.js"></script><script src="/js/third-party/jquery.min.js"></script><script src="/js/third-party/jquery.fancybox.min.js"></script><script src="/js/third-party/velocity.min.js"></script><script src="/js/third-party/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.5.6"></script><script src="/js/fancybox.js?version=1.5.6"></script><script src="/js/sidebar.js?version=1.5.6"></script><script src="/js/copy.js?version=1.5.6"></script><script src="/js/fireworks.js?version=1.5.6"></script><script src="/js/transition.js?version=1.5.6"></script><script src="/js/scroll.js?version=1.5.6"></script><script src="/js/head.js?version=1.5.6"></script></body></html>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/读书笔记/">读书笔记</a>
+                    
+                      <a class="hover-with-bg" href="/categories/读书笔记/Kafka技术内幕/">Kafka技术内幕</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/java/">java</a>
+                    
+                      <a class="hover-with-bg" href="/tags/kafka/">kafka</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Kafka技术内幕/">Kafka技术内幕</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/07/18/《Kafka技术内幕》-读书笔记2/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">《Kafka技术内幕》--读书笔记2</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2018/07/13/hello-world/">
+                        <span class="hidden-mobile">Hello World</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "《Kafka技术内幕》--读书笔记1&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

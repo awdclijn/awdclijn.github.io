@@ -1,20 +1,207 @@
-<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="《Kafka技术内幕》--读书笔记3"><meta name="keywords" content="java,kafka,Kafka技术内幕"><meta name="author" content="keon,undefined"><meta name="copyright" content="keon"><title>《Kafka技术内幕》--读书笔记3 | keon随便写写</title><link rel="shortcut icon" href="/my-favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.5.6"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css?version=1.5.6"><link rel="dns-prefetch" href="https://cdn.staticfile.org"><link rel="dns-prefetch" href="https://cdn.bootcss.com"><link rel="dns-prefetch" href="https://creativecommons.org"><link rel="dns-prefetch" href="https://hm.baidu.com"><script>var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?ae0586f75159e5097cb79871b2fdb3a1";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();</script><script>var GLOBAL_CONFIG = { 
-  root: '/',
-  algolia: undefined,
-  localSearch: undefined,
-  copy: {
-    success: '复制成功',
-    error: '复制错误',
-    noSupport: '浏览器不支持'
-  }
-} </script></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#客户端消息发送线程"><span class="toc-number">1.</span> <span class="toc-text">客户端消息发送线程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#创建生产者客户端请求"><span class="toc-number">2.</span> <span class="toc-text">创建生产者客户端请求</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#准备发送客户端请求"><span class="toc-number">2.1.</span> <span class="toc-text">准备发送客户端请求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#客户端轮询并调用回调函数"><span class="toc-number">2.2.</span> <span class="toc-text">客户端轮询并调用回调函数</span></a></li></ol></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.png"></div><div class="author-info__name text-center">keon</div><div class="author-info__description text-center"></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">10</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">4</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">3</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://raw.githubusercontent.com/awdclijn/awdclijn.github.io/master/img/kim-holtermand-reflections.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">keon随便写写</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus"><a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/tags">Tags</a><a class="site-page" href="/categories">Categories</a></span></div><div id="post-info"><div id="post-title">《Kafka技术内幕》--读书笔记3</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2018-08-13</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/读书笔记/">读书笔记</a><i class="fa fa-angle-right" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/读书笔记/Kafka技术内幕/">Kafka技术内幕</a><div class="post-meta-wordcount"><span>字数总计: </span><span class="word-count">1,726</span><span class="post-meta__separator">|</span><span>阅读时长: 7 分钟</span></div></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h1 id="客户端消息发送线程"><a href="#客户端消息发送线程" class="headerlink" title="客户端消息发送线程"></a>客户端消息发送线程</h1><p>我们先按照分区的主副本节点进行分组，把属于同一个节点的所有分区放在一起，合并成一个请求发送。</p>
-<p><img src="https://ws4.sinaimg.cn/large/0069RVTdgy1fu8gxn3kihj30uq0j2n9f.jpg" alt=""></p>
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="keon">
+  <meta name="keywords" content="">
+  <title>《Kafka技术内幕》--读书笔记3 - keon随便写写</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>keon随便写写</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2018-08-13 22:54">
+      2018年8月13日 晚上
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      23
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="客户端消息发送线程"><a href="#客户端消息发送线程" class="headerlink" title="客户端消息发送线程"></a>客户端消息发送线程</h1><p>我们先按照分区的主副本节点进行分组，把属于同一个节点的所有分区放在一起，合并成一个请求发送。</p>
+<p><img src="https://ws4.sinaimg.cn/large/0069RVTdgy1fu8gxn3kihj30uq0j2n9f.jpg" srcset="/img/loading.gif" alt=""></p>
 <a id="more"></a>
 <ol>
 <li>消息被记录收集器收集，并按照分区追加到队列的最后一个批记录中。</li>
@@ -23,17 +210,404 @@
 <li>发送线程通过drain()从记录收集器获取按照节点整理好的每个分区的批记录。</li>
 <li>发送线程得到每个节点的批记录后，为每个节点创建客户端请求，并将请求发送到服务端。</li>
 </ol>
-<p><img src="https://ws2.sinaimg.cn/large/0069RVTdgy1fu8i82lx23j31de0luwzc.jpg" alt=""></p>
+<p><img src="https://ws2.sinaimg.cn/large/0069RVTdgy1fu8i82lx23j31de0luwzc.jpg" srcset="/img/loading.gif" alt=""></p>
 <h1 id="创建生产者客户端请求"><a href="#创建生产者客户端请求" class="headerlink" title="创建生产者客户端请求"></a>创建生产者客户端请求</h1><p>发送线程并不负责真正发送客户端请求，它会从记录收集器中取出要发送的消息，创建好客户端请求，然后把请求交给客户端网络对象(NetworkClient)去发送。因为没有在发送线程中发送请求，所以创建客户端请求时需要保留目标节点，这样客户端网络对象获取出客户端请求时，才能知道要发送给哪个目标节点。</p>
 <h2 id="准备发送客户端请求"><a href="#准备发送客户端请求" class="headerlink" title="准备发送客户端请求"></a>准备发送客户端请求</h2><p>客户端向服务端发送请求需要先建立网络连接。如果服务端还没有准备好，即还不能连接，这个节点在客户端就会被移除掉，确保消息不会发送给还没有准备好的节点;如果服务端已经准备好了，则调用selector.connect()方法建立到目标节点的网络连接。 </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Begin connecting to the given node, return true if we are already connected and ready to send to that node.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> node The node to check</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> now The current timestamp</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> True if we are ready to send to the given node</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">ready</span><span class="params">(Node node, <span class="keyword">long</span> now)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (node.isEmpty())</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Cannot connect to empty node "</span> + node);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (isReady(node, now))</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (connectionStates.canConnect(node.idString(), now))</span><br><span class="line">        <span class="comment">// if we are interested in sending to a node and we don't have a connection to it, initiate one</span></span><br><span class="line">        initiateConnect(node, now);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs java"><span class="hljs-comment">/**
+ * Begin connecting to the given node, return true if we are already connected and ready to send to that node.
+ *
+ * <span class="hljs-doctag">@param</span> node The node to check
+ * <span class="hljs-doctag">@param</span> now The current timestamp
+ * <span class="hljs-doctag">@return</span> True if we are ready to send to the given node
+ */</span>
+<span class="hljs-meta">@Override</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">ready</span><span class="hljs-params">(Node node, <span class="hljs-keyword">long</span> now)</span> </span>&#123;
+    <span class="hljs-keyword">if</span> (node.isEmpty())
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> IllegalArgumentException(<span class="hljs-string">"Cannot connect to empty node "</span> + node);
+
+    <span class="hljs-keyword">if</span> (isReady(node, now))
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+
+    <span class="hljs-keyword">if</span> (connectionStates.canConnect(node.idString(), now))
+        <span class="hljs-comment">// if we are interested in sending to a node and we don't have a connection to it, initiate one</span>
+        initiateConnect(node, now);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+&#125;</code></pre>
 <p>这一步只是将请求暂存到节点对应的网络通道中，还没有真正地将客户端请求发送出去。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doSend</span><span class="params">(ClientRequest clientRequest, <span class="keyword">boolean</span> isInternalRequest, <span class="keyword">long</span> now)</span> </span>&#123;</span><br><span class="line">    String nodeId = clientRequest.destination();</span><br><span class="line">    <span class="keyword">if</span> (!isInternalRequest) &#123;</span><br><span class="line">        <span class="comment">// If this request came from outside the NetworkClient, validate</span></span><br><span class="line">        <span class="comment">// that we can send data.  If the request is internal, we trust</span></span><br><span class="line">        <span class="comment">// that that internal code has done this validation.  Validation</span></span><br><span class="line">        <span class="comment">// will be slightly different for some internal requests (for</span></span><br><span class="line">        <span class="comment">// example, ApiVersionsRequests can be sent prior to being in</span></span><br><span class="line">        <span class="comment">// READY state.)</span></span><br><span class="line">        <span class="keyword">if</span> (!canSendRequest(nodeId))</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Attempt to send a request to node "</span> + nodeId + <span class="string">" which is not ready."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    AbstractRequest request = <span class="keyword">null</span>;</span><br><span class="line">    AbstractRequest.Builder&lt;?&gt; builder = clientRequest.requestBuilder();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        NodeApiVersions versionInfo = nodeApiVersions.get(nodeId);</span><br><span class="line">        <span class="comment">// Note: if versionInfo is null, we have no server version information. This would be</span></span><br><span class="line">        <span class="comment">// the case when sending the initial ApiVersionRequest which fetches the version</span></span><br><span class="line">        <span class="comment">// information itself.  It is also the case when discoverBrokerVersions is set to false.</span></span><br><span class="line">        <span class="keyword">if</span> (versionInfo == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (discoverBrokerVersions &amp;&amp; log.isTraceEnabled())</span><br><span class="line">                log.trace(<span class="string">"No version information found when sending message of type &#123;&#125; to node &#123;&#125;. "</span> +</span><br><span class="line">                        <span class="string">"Assuming version &#123;&#125;."</span>, clientRequest.apiKey(), nodeId, builder.version());</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">short</span> version = versionInfo.usableVersion(clientRequest.apiKey());</span><br><span class="line">            builder.setVersion(version);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// The call to build may also throw UnsupportedVersionException, if there are essential</span></span><br><span class="line">        <span class="comment">// fields that cannot be represented in the chosen version.</span></span><br><span class="line">        request = builder.build();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (UnsupportedVersionException e) &#123;</span><br><span class="line">        <span class="comment">// If the version is not supported, skip sending the request over the wire.</span></span><br><span class="line">        <span class="comment">// Instead, simply add it to the local queue of aborted requests.</span></span><br><span class="line">        log.debug(<span class="string">"Version mismatch when attempting to send &#123;&#125; to &#123;&#125;"</span>,</span><br><span class="line">                clientRequest.toString(), clientRequest.destination(), e);</span><br><span class="line">        ClientResponse clientResponse = <span class="keyword">new</span> ClientResponse(clientRequest.makeHeader(),</span><br><span class="line">                clientRequest.callback(), clientRequest.destination(), now, now,</span><br><span class="line">                <span class="keyword">false</span>, e, <span class="keyword">null</span>);</span><br><span class="line">        abortedSends.add(clientResponse);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    RequestHeader header = clientRequest.makeHeader();</span><br><span class="line">    <span class="keyword">if</span> (log.isDebugEnabled()) &#123;</span><br><span class="line">        <span class="keyword">int</span> latestClientVersion = ProtoUtils.latestVersion(clientRequest.apiKey().id);</span><br><span class="line">        <span class="keyword">if</span> (header.apiVersion() == latestClientVersion) &#123;</span><br><span class="line">            log.trace(<span class="string">"Sending &#123;&#125; to node &#123;&#125;."</span>, request, nodeId);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            log.debug(<span class="string">"Using older server API v&#123;&#125; to send &#123;&#125; to node &#123;&#125;."</span>,</span><br><span class="line">                header.apiVersion(), request, nodeId);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    Send send = request.toSend(nodeId, header);</span><br><span class="line">    InFlightRequest inFlightRequest = <span class="keyword">new</span> InFlightRequest(</span><br><span class="line">            header,</span><br><span class="line">            clientRequest.createdTimeMs(),</span><br><span class="line">            clientRequest.destination(),</span><br><span class="line">            clientRequest.callback(),</span><br><span class="line">            clientRequest.expectResponse(),</span><br><span class="line">            isInternalRequest,</span><br><span class="line">            send,</span><br><span class="line">            now);</span><br><span class="line">    <span class="keyword">this</span>.inFlightRequests.add(inFlightRequest);</span><br><span class="line">    selector.send(inFlightRequest.send);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doSend</span><span class="hljs-params">(ClientRequest clientRequest, <span class="hljs-keyword">boolean</span> isInternalRequest, <span class="hljs-keyword">long</span> now)</span> </span>&#123;
+    String nodeId = clientRequest.destination();
+    <span class="hljs-keyword">if</span> (!isInternalRequest) &#123;
+        <span class="hljs-comment">// If this request came from outside the NetworkClient, validate</span>
+        <span class="hljs-comment">// that we can send data.  If the request is internal, we trust</span>
+        <span class="hljs-comment">// that that internal code has done this validation.  Validation</span>
+        <span class="hljs-comment">// will be slightly different for some internal requests (for</span>
+        <span class="hljs-comment">// example, ApiVersionsRequests can be sent prior to being in</span>
+        <span class="hljs-comment">// READY state.)</span>
+        <span class="hljs-keyword">if</span> (!canSendRequest(nodeId))
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> IllegalStateException(<span class="hljs-string">"Attempt to send a request to node "</span> + nodeId + <span class="hljs-string">" which is not ready."</span>);
+    &#125;
+    AbstractRequest request = <span class="hljs-keyword">null</span>;
+    AbstractRequest.Builder&lt;?&gt; builder = clientRequest.requestBuilder();
+    <span class="hljs-keyword">try</span> &#123;
+        NodeApiVersions versionInfo = nodeApiVersions.get(nodeId);
+        <span class="hljs-comment">// Note: if versionInfo is null, we have no server version information. This would be</span>
+        <span class="hljs-comment">// the case when sending the initial ApiVersionRequest which fetches the version</span>
+        <span class="hljs-comment">// information itself.  It is also the case when discoverBrokerVersions is set to false.</span>
+        <span class="hljs-keyword">if</span> (versionInfo == <span class="hljs-keyword">null</span>) &#123;
+            <span class="hljs-keyword">if</span> (discoverBrokerVersions &amp;&amp; log.isTraceEnabled())
+                log.trace(<span class="hljs-string">"No version information found when sending message of type &#123;&#125; to node &#123;&#125;. "</span> +
+                        <span class="hljs-string">"Assuming version &#123;&#125;."</span>, clientRequest.apiKey(), nodeId, builder.version());
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            <span class="hljs-keyword">short</span> version = versionInfo.usableVersion(clientRequest.apiKey());
+            builder.setVersion(version);
+        &#125;
+        <span class="hljs-comment">// The call to build may also throw UnsupportedVersionException, if there are essential</span>
+        <span class="hljs-comment">// fields that cannot be represented in the chosen version.</span>
+        request = builder.build();
+    &#125; <span class="hljs-keyword">catch</span> (UnsupportedVersionException e) &#123;
+        <span class="hljs-comment">// If the version is not supported, skip sending the request over the wire.</span>
+        <span class="hljs-comment">// Instead, simply add it to the local queue of aborted requests.</span>
+        log.debug(<span class="hljs-string">"Version mismatch when attempting to send &#123;&#125; to &#123;&#125;"</span>,
+                clientRequest.toString(), clientRequest.destination(), e);
+        ClientResponse clientResponse = <span class="hljs-keyword">new</span> ClientResponse(clientRequest.makeHeader(),
+                clientRequest.callback(), clientRequest.destination(), now, now,
+                <span class="hljs-keyword">false</span>, e, <span class="hljs-keyword">null</span>);
+        abortedSends.add(clientResponse);
+        <span class="hljs-keyword">return</span>;
+    &#125;
+    RequestHeader header = clientRequest.makeHeader();
+    <span class="hljs-keyword">if</span> (log.isDebugEnabled()) &#123;
+        <span class="hljs-keyword">int</span> latestClientVersion = ProtoUtils.latestVersion(clientRequest.apiKey().id);
+        <span class="hljs-keyword">if</span> (header.apiVersion() == latestClientVersion) &#123;
+            log.trace(<span class="hljs-string">"Sending &#123;&#125; to node &#123;&#125;."</span>, request, nodeId);
+        &#125; <span class="hljs-keyword">else</span> &#123;
+            log.debug(<span class="hljs-string">"Using older server API v&#123;&#125; to send &#123;&#125; to node &#123;&#125;."</span>,
+                header.apiVersion(), request, nodeId);
+        &#125;
+    &#125;
+    Send send = request.toSend(nodeId, header);
+    InFlightRequest inFlightRequest = <span class="hljs-keyword">new</span> InFlightRequest(
+            header,
+            clientRequest.createdTimeMs(),
+            clientRequest.destination(),
+            clientRequest.callback(),
+            clientRequest.expectResponse(),
+            isInternalRequest,
+            send,
+            now);
+    <span class="hljs-keyword">this</span>.inFlightRequests.add(inFlightRequest);
+    selector.send(inFlightRequest.send);
+&#125;</code></pre>
 <p>针对同一个服务端，如果上一个客户端请求还没有发送完成，则不允许发送新的客户端请求。客户端网络连接对象用inFlightRequsts变量在客户端缓存了还没有收到响应的客户端请求，InFlightRequests类包含一个节点到双端队列的映射结构。在准备发送客户端请求时，请求将添加到指定节点对应的队列中;在收到响应后，才会将请求从队列中移除。</p>
 <h2 id="客户端轮询并调用回调函数"><a href="#客户端轮询并调用回调函数" class="headerlink" title="客户端轮询并调用回调函数"></a>客户端轮询并调用回调函数</h2><p>发送线程run()方法的最后一步是调用NetworkClient的poll()方法。轮询的最关键步骤是调用selector.poll()方法，而在轮询之后，定义了多个处理方法。轮询不仅仅会发送客户端请求，也会接收客户端响应。客户端发送请求后会调用handleCompletedSends()处理已经完成的发送，客户端接收到响应后会调用handleCompletedReceives()处理已经完成的接收。<br>如果客户端发送完请求不需要响应，在处理已经完成的发送时，就会将对应的请求从iFlightRequests队列中移踪。而因为没有响应结果，也就不会有机会调用handleCompletedReceives()方法。如果客户端请求需要响应，则只有在handleCompletedReceives()中才会删除对应的请求:因为inFlightRequests队列保存的是未收到响应的客户端请求，请求已经有响应，就不需要存在于队列中。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Do actual reads and writes to sockets.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> timeout The maximum amount of time to wait (in ms) for responses if there are none immediately,</span></span><br><span class="line"><span class="comment"> *                must be non-negative. The actual timeout will be the minimum of timeout, request timeout and</span></span><br><span class="line"><span class="comment"> *                metadata timeout</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> now The current time in milliseconds</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> The list of responses received</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> List&lt;ClientResponse&gt; <span class="title">poll</span><span class="params">(<span class="keyword">long</span> timeout, <span class="keyword">long</span> now)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">long</span> metadataTimeout = metadataUpdater.maybeUpdate(now);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.selector.poll(Utils.min(timeout, metadataTimeout, requestTimeoutMs));</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        log.error(<span class="string">"Unexpected error during I/O"</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// process completed actions</span></span><br><span class="line">    <span class="keyword">long</span> updatedNow = <span class="keyword">this</span>.time.milliseconds();</span><br><span class="line">    List&lt;ClientResponse&gt; responses = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    handleAbortedSends(responses);</span><br><span class="line">    handleCompletedSends(responses, updatedNow);</span><br><span class="line">    handleCompletedReceives(responses, updatedNow);</span><br><span class="line">    handleDisconnections(responses, updatedNow);</span><br><span class="line">    handleConnections();</span><br><span class="line">    handleInitiateApiVersionRequests(updatedNow);</span><br><span class="line">    handleTimedOutRequests(responses, updatedNow);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// invoke callbacks</span></span><br><span class="line">    <span class="comment">// 上面几个处理都会往responses中添加数据，有了响应后开始调用请求的回调函数</span></span><br><span class="line">    <span class="keyword">for</span> (ClientResponse response : responses) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            response.onComplete();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            log.error(<span class="string">"Uncaught error in request completion:"</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> responses;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs java"><span class="hljs-comment">/**
+ * Do actual reads and writes to sockets.
+ *
+ * <span class="hljs-doctag">@param</span> timeout The maximum amount of time to wait (in ms) for responses if there are none immediately,
+ *                must be non-negative. The actual timeout will be the minimum of timeout, request timeout and
+ *                metadata timeout
+ * <span class="hljs-doctag">@param</span> now The current time in milliseconds
+ * <span class="hljs-doctag">@return</span> The list of responses received
+ */</span>
+<span class="hljs-meta">@Override</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> List&lt;ClientResponse&gt; <span class="hljs-title">poll</span><span class="hljs-params">(<span class="hljs-keyword">long</span> timeout, <span class="hljs-keyword">long</span> now)</span> </span>&#123;
+    <span class="hljs-keyword">long</span> metadataTimeout = metadataUpdater.maybeUpdate(now);
+    <span class="hljs-keyword">try</span> &#123;
+        <span class="hljs-keyword">this</span>.selector.poll(Utils.min(timeout, metadataTimeout, requestTimeoutMs));
+    &#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;
+        log.error(<span class="hljs-string">"Unexpected error during I/O"</span>, e);
+    &#125;
+
+    <span class="hljs-comment">// process completed actions</span>
+    <span class="hljs-keyword">long</span> updatedNow = <span class="hljs-keyword">this</span>.time.milliseconds();
+    List&lt;ClientResponse&gt; responses = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();
+    handleAbortedSends(responses);
+    handleCompletedSends(responses, updatedNow);
+    handleCompletedReceives(responses, updatedNow);
+    handleDisconnections(responses, updatedNow);
+    handleConnections();
+    handleInitiateApiVersionRequests(updatedNow);
+    handleTimedOutRequests(responses, updatedNow);
+
+    <span class="hljs-comment">// invoke callbacks</span>
+    <span class="hljs-comment">// 上面几个处理都会往responses中添加数据，有了响应后开始调用请求的回调函数</span>
+    <span class="hljs-keyword">for</span> (ClientResponse response : responses) &#123;
+        <span class="hljs-keyword">try</span> &#123;
+            response.onComplete();
+        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;
+            log.error(<span class="hljs-string">"Uncaught error in request completion:"</span>, e);
+        &#125;
+    &#125;
+
+    <span class="hljs-keyword">return</span> responses;
+&#125;</code></pre>
 <ol>
 <li>不需要响应的流程。开始发送请求→添加客户端请求到队列→发送请求→请求发送成功→从队列中删除发送请求→构造客户端响应。</li>
 <li>需要晌应的流程。开始发送请求→添加客户端请求到队列→发送请求→请求发送成功→等待接收响应→接收响应→接收到完整的响应→从队列中删除客户端请求→构造客户端响应。</li>
 </ol>
-</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">keon</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://awdclijn.github.io/2018/08/13/《Kafka技术内幕》-读书笔记3/">https://awdclijn.github.io/2018/08/13/《Kafka技术内幕》-读书笔记3/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://awdclijn.github.io" target="_blank">keon随便写写</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java/">java</a><a class="post-meta__tags" href="/tags/kafka/">kafka</a><a class="post-meta__tags" href="/tags/Kafka技术内幕/">Kafka技术内幕</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2018/09/08/《Kafka技术内幕》-读书笔记4/"><i class="fa fa-chevron-left">  </i><span>《Kafka技术内幕》--读书笔记4</span></a></div><div class="next-post pull-right"><a href="/2018/07/18/《Kafka技术内幕》-读书笔记2/"><span>《Kafka技术内幕》--读书笔记2</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer><div class="layout" id="footer"><div class="copyright">&copy;2018 By keon</div><div class="framework-info"><span>驱动 - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="/js/third-party/anime.min.js"></script><script src="/js/third-party/jquery.min.js"></script><script src="/js/third-party/jquery.fancybox.min.js"></script><script src="/js/third-party/velocity.min.js"></script><script src="/js/third-party/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.5.6"></script><script src="/js/fancybox.js?version=1.5.6"></script><script src="/js/sidebar.js?version=1.5.6"></script><script src="/js/copy.js?version=1.5.6"></script><script src="/js/fireworks.js?version=1.5.6"></script><script src="/js/transition.js?version=1.5.6"></script><script src="/js/scroll.js?version=1.5.6"></script><script src="/js/head.js?version=1.5.6"></script></body></html>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/读书笔记/">读书笔记</a>
+                    
+                      <a class="hover-with-bg" href="/categories/读书笔记/Kafka技术内幕/">Kafka技术内幕</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/java/">java</a>
+                    
+                      <a class="hover-with-bg" href="/tags/kafka/">kafka</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Kafka技术内幕/">Kafka技术内幕</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/09/08/《Kafka技术内幕》-读书笔记4/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">《Kafka技术内幕》--读书笔记4</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2018/07/18/《Kafka技术内幕》-读书笔记2/">
+                        <span class="hidden-mobile">《Kafka技术内幕》--读书笔记2</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "《Kafka技术内幕》--读书笔记3&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
