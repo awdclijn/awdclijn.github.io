@@ -205,9 +205,9 @@
 <li>能够以非常低的延迟处理数据</li>
 <li>较低的成本能带来较好的容错性</li>
 </ol>
-<p>流式技术的发展<br><img src="https://ws2.sinaimg.cn/large/006tNbRwgy1fxw3ydcisfj311o0u0wq4.jpg" srcset="/img/loading.gif" alt=""></p>
+<p>流式技术的发展<br><img src="https://tva2.sinaimg.cn/large/006tNbRwgy1fxw3ydcisfj311o0u0wq4.jpg" srcset="/img/loading.gif" alt=""></p>
 <a id="more"></a>
-<p>Flink架构<br><img src="https://ws2.sinaimg.cn/large/006tNbRwgy1fxw40pqbjyj313o0q8ae9.jpg" srcset="/img/loading.gif" alt=""></p>
+<p>Flink架构<br><img src="https://tva2.sinaimg.cn/large/006tNbRwgy1fxw40pqbjyj313o0q8ae9.jpg" srcset="/img/loading.gif" alt=""></p>
 <p>Flink的分布式特点体现在它能够在成百上千台机器上运行，它将大型的计算任务分成许多小的部分，每个机器执行一个部分。Flink 能够自动地确保在发生机器故障或者其他错误时计算能持续进行，或者在修复bug或进行版本升级后有计划地再执行一次。这种能力使得开发人员不需要担心失败。Flink本质上使用容错性数据流，这使得开发人员可以分析持续生成且永远不结束的数据(即流处理)。</p>
 <p>Flink常用的架构：</p>
 <ol>
@@ -215,7 +215,7 @@
 <li>流处理层</li>
 </ol>
 <p>事件时间 是事件创建的时间。它通常由事件中的时间戳描述，例如附接在生产传感器，或者生产服务。Flink通过时间戳分配器访问事件时间戳。<br>摄入时间 是事件进入Flink数据流源算符的时间。<br>处理事件 是每一个执行时间操作的算符的本地时间。</p>
-<p><img src="https://ws4.sinaimg.cn/large/006tNbRwgy1fyb8xxrnlpj310s0h2whf.jpg" srcset="/img/loading.gif" alt=""></p>
+<p><img src="https://tva4.sinaimg.cn/large/006tNbRwgy1fyb8xxrnlpj310s0h2whf.jpg" srcset="/img/loading.gif" alt=""></p>
 <p>窗口</p>
 <ol>
 <li><p>时间窗口，有滚动窗口和滑动窗口，滚动按结束时间，滑动按开始时间。</p>
@@ -228,7 +228,7 @@
 <pre><code class="hljs java">stream.window(SessionWindows.withGap(Time.minutes(<span class="hljs-number">5</span>))</code></pre>
 </li>
 </ol>
-<p><img src="https://ws1.sinaimg.cn/large/006tNbRwgy1fyb8zk6y9ej30ya06ujs4.jpg" srcset="/img/loading.gif" alt=""></p>
+<p><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1fyb8zk6y9ej30ya06ujs4.jpg" srcset="/img/loading.gif" alt=""></p>
 <p>水印<br>表示当前不会再有比水印时间早的流水，具体见如下链接：<br><a href="https://blog.csdn.net/a6822342/article/details/78064815" target="_blank" rel="noopener">https://blog.csdn.net/a6822342/article/details/78064815</a></p>
 <p>状态<br>流式计算分为无状态和有状态两种情况。无状态的计算观察每个独立事件，并根据最后一个事件输出结果。有状态的计算则会基于多个事件输出结果。</p>
 <p>一致性</p>

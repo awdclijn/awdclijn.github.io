@@ -208,7 +208,7 @@
 <li>消费者连接器根据主题和线程数创建多个消息流。</li>
 <li>在每个消息流通过循环消费者迭代器(ConsumerIterator)读出消息。</li>
 </ol>
-<p><img src="https://ws1.sinaimg.cn/large/006tNbRwgy1fve31c9uixj315w0hmap1.jpg" srcset="/img/loading.gif" alt=""></p>
+<p><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1fve31c9uixj315w0hmap1.jpg" srcset="/img/loading.gif" alt=""></p>
 <a id="more"></a>
 <h1 id="创建并初始化消费者连接器"><a href="#创建并初始化消费者连接器" class="headerlink" title="创建并初始化消费者连接器"></a>创建并初始化消费者连接器</h1><p>默认的消费者连接器实现类是ZookeeperConsumerConnector，消费者连接器还会协调下面的各个组件来读取消息。</p>
 <ul>
@@ -220,7 +220,7 @@
 <li>offsetsChannel。偏移量存储为Kafka内部主题时，需要和管理消费组的协调者通信。</li>
 </ul>
 <p>监听器(1)是消息消费事件的导火索，一旦触发了再平衡，需要从ZK中读取所有的分区和已注册的消费者(2)。然后通过分区分配算法，每个消费者都会分配到不同的分区列表(3)。接着拉取线程开始拉取对应的分区消息(4)，并将拉取到的消息放到每个线程的队列中(5)，最后消费者客户端就可以从队列中读取出消息了。另外，为了及时保存消费进度，我们还需要将偏移量保存至offsetsChannel通道对应的节点中(6)。</p>
-<p><img src="https://ws3.sinaimg.cn/large/006tNbRwgy1fve3a31wmpj312q0q2nl9.jpg" srcset="/img/loading.gif" alt=""></p>
+<p><img src="https://tva3.sinaimg.cn/large/006tNbRwgy1fve3a31wmpj312q0q2nl9.jpg" srcset="/img/loading.gif" alt=""></p>
 <h1 id="消费者客户端的线程模型"><a href="#消费者客户端的线程模型" class="headerlink" title="消费者客户端的线程模型"></a>消费者客户端的线程模型</h1><p>消费者连接器的createMessageStreams()方法会调用consume()方法，但consume()方法并不真正消费数据，而只是为消费消息做准备工作。</p>
 <ol>
 <li>根据客户端传入的topicCountMap构造对应的队列和消息流，消息流引用了队列。</li>
@@ -239,7 +239,7 @@
 </ul>
 <p>消费者客户端只需要指主订阅的主题和线程数量，具体主题分成几个分区、线程分配到了哪些分区、分区分布在哪些节点上，对客户端都是透明的。客户端的关注点是每个线程都对应一个队列，每个队列都对应了一个消息流，只要队列中有数据，就能从消息流中迭代读取出消息。</p>
 <p>队列作为消息流和拉取线程的共享内存数据结构，会通过消费者连接器的topicThreadldAndQueues全局引用，传递到拉取线程。当拉取线程往队列中填充数据时，消费者客户端就可以通过消息流从队列读取消息。</p>
-<p><img src="https://ws1.sinaimg.cn/large/006tNbRwgy1fve4139m62j310u0am107.jpg" srcset="/img/loading.gif" alt=""></p>
+<p><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1fve4139m62j310u0am107.jpg" srcset="/img/loading.gif" alt=""></p>
 <h1 id="重新初始化消费者"><a href="#重新初始化消费者" class="headerlink" title="重新初始化消费者"></a>重新初始化消费者</h1><p>消费者连接器的consume()方法在注册消费者至ZK后，调用reinitializeConsumer()方法执行重新初始化。消费者启动时希望被加入消费组，必须执行一次初始化方法，并触发消费组内所有消费者成员(当然也包括自己)的再平衡。</p>
 <p>每个消费者在启动时都要订阅3种事件:会话超时事件、消费组的子节点变化事件(消费者增减)、主题的数据变化事件(分区增减)。这3种事件任何一个发生，都会触发再平衡操作。如果从消费组级别来看，其他消费者也会订阅这些事件，也都会发生再平衡。即消费组中的所有消费者都会发生再平衡。</p>
 
