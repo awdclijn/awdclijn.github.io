@@ -201,7 +201,7 @@
             
             <article class="markdown-body">
               <h1 id="客户端消息发送线程"><a href="#客户端消息发送线程" class="headerlink" title="客户端消息发送线程"></a>客户端消息发送线程</h1><p>我们先按照分区的主副本节点进行分组，把属于同一个节点的所有分区放在一起，合并成一个请求发送。</p>
-<p><img src="https://tva4.sinaimg.cn/large/0069RVTdgy1fu8gxn3kihj30uq0j2n9f.jpg" srcset="/img/loading.gif" alt=""></p>
+<p><img src="/2018/08/13/《Kafka技术内幕》-读书笔记3/0069RVTdgy1fu8gxn3kihj30uq0j2n9f.jpg" srcset="/img/loading.gif" alt=""></p>
 <a id="more"></a>
 <ol>
 <li>消息被记录收集器收集，并按照分区追加到队列的最后一个批记录中。</li>
@@ -210,7 +210,7 @@
 <li>发送线程通过drain()从记录收集器获取按照节点整理好的每个分区的批记录。</li>
 <li>发送线程得到每个节点的批记录后，为每个节点创建客户端请求，并将请求发送到服务端。</li>
 </ol>
-<p><img src="https://tva2.sinaimg.cn/large/0069RVTdgy1fu8i82lx23j31de0luwzc.jpg" srcset="/img/loading.gif" alt=""></p>
+<p><img src="/2018/08/13/《Kafka技术内幕》-读书笔记3/0069RVTdgy1fu8i82lx23j31de0luwzc.jpg" srcset="/img/loading.gif" alt=""></p>
 <h1 id="创建生产者客户端请求"><a href="#创建生产者客户端请求" class="headerlink" title="创建生产者客户端请求"></a>创建生产者客户端请求</h1><p>发送线程并不负责真正发送客户端请求，它会从记录收集器中取出要发送的消息，创建好客户端请求，然后把请求交给客户端网络对象(NetworkClient)去发送。因为没有在发送线程中发送请求，所以创建客户端请求时需要保留目标节点，这样客户端网络对象获取出客户端请求时，才能知道要发送给哪个目标节点。</p>
 <h2 id="准备发送客户端请求"><a href="#准备发送客户端请求" class="headerlink" title="准备发送客户端请求"></a>准备发送客户端请求</h2><p>客户端向服务端发送请求需要先建立网络连接。如果服务端还没有准备好，即还不能连接，这个节点在客户端就会被移除掉，确保消息不会发送给还没有准备好的节点;如果服务端已经准备好了，则调用selector.connect()方法建立到目标节点的网络连接。 </p>
 <pre><code class="hljs java"><span class="hljs-comment">/**

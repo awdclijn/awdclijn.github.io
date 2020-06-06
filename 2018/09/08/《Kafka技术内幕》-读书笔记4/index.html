@@ -214,22 +214,22 @@
 <li>发布-订阅模式。同一条消息会被多个消费组消费，每个消费组只有一个消费者，实现广播。</li>
 <li>队列模式。只有一个消费组、多个消费者一条消息只被消费组的一个消费者消费，实现单播。</li>
 </ul>
-<p><img src="https://tva4.sinaimg.cn/large/006tNbRwgy1fv293227ecj316m0imtqg.jpg" srcset="/img/loading.gif" alt=""></p>
+<p><img src="/2018/09/08/《Kafka技术内幕》-读书笔记4/006tNbRwgy1fv293227ecj316m0imtqg.jpg" srcset="/img/loading.gif" alt=""></p>
 <p>一旦出现消费组内消费者的调整，消费组内的消费者需要执行再平衡的工作。再平衡操作针对的是消费组中的所有消费者，所有消费者都妥执行重新分配分区的动作。再平衡前的消费者保存了分区的消费进度，再平衡后的消费者就可以从保存的进度位置继续读取分区。</p>
-<p><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1fv29bbgmv5j314m0jmtq1.jpg" srcset="/img/loading.gif" alt=""></p>
+<p><img src="/2018/09/08/《Kafka技术内幕》-读书笔记4/006tNbRwgy1fv29bbgmv5j314m0jmtq1.jpg" srcset="/img/loading.gif" alt=""></p>
 <p>生产者的提交日志采用递增的偏移量，连同消息内容一起写入本地日志文件。生产者客户端不需要保存偏移量相关的状态，消费者客户端则要保存消费消息的偏移盘即消费进度。消费进度表示消费者对一个分区已经消费到了哪里。</p>
 <p>消费者对分区的消费进度通常保存在外部存储系统中，比如ZK或者Kafka的内部主题(consume_offsets)。</p>
-<p><img src="https://tva4.sinaimg.cn/large/006tNbRwgy1fv2aefbamzj31820bu498.jpg" srcset="/img/loading.gif" alt=""></p>
+<p><img src="/2018/09/08/《Kafka技术内幕》-读书笔记4/006tNbRwgy1fv2aefbamzj31820bu498.jpg" srcset="/img/loading.gif" alt=""></p>
 <p>一个分区只能属于一个消费者线程，将分区分配给消费者有以下几种场景。</p>
 <ol>
 <li>线程数量多于分区的数量，有部分钱程无法消费该主题下任何一条消息。</li>
 <li>线程数量少于分区的数量，有一些线程会消费多个分区的数据。</li>
 <li>线程数量等于分区的数量，则正好一个钱程消费一个分区的数据。</li>
 </ol>
-<p><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1fv2ais7607j31aq0bydqy.jpg" srcset="/img/loading.gif" alt=""></p>
+<p><img src="/2018/09/08/《Kafka技术内幕》-读书笔记4/006tNbRwgy1fv2ais7607j31aq0bydqy.jpg" srcset="/img/loading.gif" alt=""></p>
 <p>一个消费者线程消费多个分区，可以保证消费同一个分区的消息一定是有序的，但并不保证消费者接收到多个分区的消息完全有序。</p>
 <p>消费者除了需要保存消费进度到ZK中，它分配的分区也是从ZK读取的。ZK不仅存储了Kafka的内部元数据，而且记录了消费组的成员列表、分区的消费进度、分区的所有者。表3-1总结了消息代理节点、主题、分区、消费者、偏移量(offset)、所有权(ownership)在ZK中的注册信息。</p>
-<p><img src="https://tva3.sinaimg.cn/large/006tNbRwgy1fv60qzxur8j31dw10ckjl.jpg" srcset="/img/loading.gif" alt=""></p>
+<p><img src="/2018/09/08/《Kafka技术内幕》-读书笔记4/006tNbRwgy1fv60qzxur8j31dw10ckjl.jpg" srcset="/img/loading.gif" alt=""></p>
 <ul>
 <li>高级API。消费者客户端代码不需要管理偏移量的提交，并且采用了消费组的向动负载均衡功能，确保消费者的增减不会影响消息的消费。高级API提供了从Kafka消费数据的高层抽象。</li>
 <li>低级API。通常针对特殊的消费逻辑，比如消费者只想消费某些特定的分区。低级API的客户端代码需要自己实现一些和Kafka服务端相关的底层逻辑，比如选择分区的主剧本、处理主副本的故障转移等也</li>
