@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="keon">
   <meta name="keywords" content="">
-  <title>《Flink基础教程》--读书笔记1 - keon随便写写</title>
+  <title>《数据密集型应用系统设计》-第一章读书笔记 - keon随便写写</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 
@@ -148,8 +148,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2018-12-05 19:34">
-      2018年12月5日 晚上
+    <time datetime="2020-07-22 15:27">
+      2020年7月22日 下午
     </time>
   </div>
 
@@ -159,7 +159,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      853 字
+      1k 字
     </span>
   
 
@@ -169,7 +169,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      9
+      10
        分钟
     </span>
   
@@ -200,46 +200,38 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <p>流处理的优势：</p>
-<ol>
-<li>能够以非常低的延迟处理数据</li>
-<li>较低的成本能带来较好的容错性</li>
-</ol>
-<p>流式技术的发展<br><img src="/2018/12/05/《Flink基础教程》-读书笔记1/006tNbRwgy1fxw3ydcisfj311o0u0wq4.jpg" srcset="/img/loading.gif" alt=""></p>
-<a id="more"></a>
-<p>Flink架构<br><img src="/2018/12/05/《Flink基础教程》-读书笔记1/006tNbRwgy1fxw40pqbjyj313o0q8ae9.jpg" srcset="/img/loading.gif" alt=""></p>
-<p>Flink的分布式特点体现在它能够在成百上千台机器上运行，它将大型的计算任务分成许多小的部分，每个机器执行一个部分。Flink 能够自动地确保在发生机器故障或者其他错误时计算能持续进行，或者在修复bug或进行版本升级后有计划地再执行一次。这种能力使得开发人员不需要担心失败。Flink本质上使用容错性数据流，这使得开发人员可以分析持续生成且永远不结束的数据(即流处理)。</p>
-<p>Flink常用的架构：</p>
-<ol>
-<li>数据传输层<br>1） 高性能及持久化：作为数据缓冲区，将短时间的数据保留，持久化的特性使得消息可以重播。<br>2） 将生产者和消费者进行解耦： 可以支持从多个源收集数据，并把数据提供给多个服务使用。</li>
-<li>流处理层</li>
-</ol>
-<p>事件时间 是事件创建的时间。它通常由事件中的时间戳描述，例如附接在生产传感器，或者生产服务。Flink通过时间戳分配器访问事件时间戳。<br>摄入时间 是事件进入Flink数据流源算符的时间。<br>处理事件 是每一个执行时间操作的算符的本地时间。</p>
-<p><img src="/2018/12/05/《Flink基础教程》-读书笔记1/006tNbRwgy1fyb8xxrnlpj310s0h2whf.jpg" srcset="/img/loading.gif" alt=""></p>
-<p>窗口</p>
-<ol>
-<li><p>时间窗口，有滚动窗口和滑动窗口，滚动按结束时间，滑动按开始时间。</p>
-<pre><code class="hljs java">stream.timeWindow(Time.minutes(<span class="hljs-number">1</span>), Time.seconds(<span class="hljs-number">30</span>))</code></pre>
-</li>
-<li><p>计数窗口，</p>
-<pre><code class="hljs java">stream.countWindow(<span class="hljs-number">4</span>, <span class="hljs-number">2</span>)</code></pre>
-</li>
-<li><p>会话窗口，用户与网站进行一系列 交互(活动阶段)之后，关闭浏览器或者不再交互(非活动阶段)</p>
-<pre><code class="hljs java">stream.window(SessionWindows.withGap(Time.minutes(<span class="hljs-number">5</span>))</code></pre>
-</li>
-</ol>
-<p><img src="/2018/12/05/《Flink基础教程》-读书笔记1/006tNbRwgy1fyb8zk6y9ej30ya06ujs4.jpg" srcset="/img/loading.gif" alt=""></p>
-<p>水印<br>表示当前不会再有比水印时间早的流水，具体见如下链接：<br><a href="https://blog.csdn.net/a6822342/article/details/78064815" target="_blank" rel="noopener">https://blog.csdn.net/a6822342/article/details/78064815</a></p>
-<p>状态<br>流式计算分为无状态和有状态两种情况。无状态的计算观察每个独立事件，并根据最后一个事件输出结果。有状态的计算则会基于多个事件输出结果。</p>
-<p>一致性</p>
+              <p>《数据密集型应用系统设计》第一章主要介绍了数据处理系统架构设计上的三个目标：可靠性、可扩展性、可维护性。</p>
+<h1 id="可靠性（Reliability）"><a href="#可靠性（Reliability）" class="headerlink" title="可靠性（Reliability）"></a>可靠性（Reliability）</h1><p>当出现意外情况如硬件、软件故障、人为失误等，系统应可以继续正常运转。虽然性能可能有所下降，但确保功能正常。</p>
+<p>可能出错的事情称为错误（faults）或故障，系统可应对错误则称为容错（fault-tolerant）或者弹性（resilient）。系统可以容忍各种可能的故障类型是不可能的，因此容错是指特定类型的故障。<br>故障与失效（failure）不完全一致。故障通常被定义为组件偏离其正常规格，而失效意味系统作为一个整体停止，无法向用户提供所需的服务。通常设计容错机制来避免从故障引发系统失效。</p>
 <ul>
-<li>at-most-once:这其实是没有正确性保障的委婉说法——故障发生之后，计数结果可能丢失。</li>
-<li>at-least-once:这表示计数结果可能大于正确值，但绝不会小于正确值。也就是说，计数程序在发生故障后可能多算，但是绝不会少算。</li>
-<li>exactly-once:这指的是系统保证在发生故障后得到的计数结果与正确值一致。</li>
+<li>硬件故障</li>
+<li>软件错误</li>
+<li>人为失误</li>
 </ul>
-<p>容错检查点</p>
-<p>Flink使用 流重放 与 Checkpoint 的结合实现了容错。Checkpoint与每一个输入流及其相关的每一个算符的状态的特定点相关联。一个流数据流可以可以从一个checkpoint恢复出来，其中通过恢复算符状态并从检查点重放事件以保持一致性（一次处理语义）<br>检查点间隔是以恢复时间（需要重放的事件数量）来消除执行过程中容错的开销的一种手段。</p>
-<p>Flink基础教程比较薄，对介绍的特性也是点到即止。</p>
+<h1 id="可扩展性（Scalability）"><a href="#可扩展性（Scalability）" class="headerlink" title="可扩展性（Scalability）"></a>可扩展性（Scalability）</h1><p>随着规模的增长，例如数据量、流量或复杂性，系统应以合理的方式来匹配这种增长。</p>
+<p>即使系统现在工作可靠，并不意味着它将来一定能够可靠运转。发生退化的一个常见原因是负载增加了。</p>
+<ol>
+<li>首先我们需要简洁的描述系统当前的负载，负载可以用称为负载参数的若干数字来描述，参数的最佳选择取决于系统的体系结构。</li>
+<li>描述负载之后，我们关注性能指标。通常关心吞吐量（throughput），即每秒可处理的记录条数，或者在某指定数据集上运行作业所需的总时间；而在线系统通常更看重服务的响应时间（response time），即客户端从发送请求到接受响应之间的间隔。如果想知道更典型的响应时间，平均值并不是合适的指标，最好使用百分位数（percentiles）。</li>
+</ol>
+<blockquote>
+<p>延迟与响应时间。延迟（latency）和响应时间（response time）容易混淆使用，但它们并不完全一样。通常响应时间是客户端看到的：除了处理请求时间（服务时间、service time）外，还包括来回网络延迟和各种排队延迟。延迟则是请求花费在处理上的时间。</p>
+</blockquote>
+<ol start="3">
+<li>应对负载增加的方法<ul>
+<li>针对特定级别负载而设计架构，需要认真考虑目标服务的负载增长情况。</li>
+<li>可以通过垂直扩展（升级硬件）和水平扩展（增加实例数量）应对负载增加，但最终往往无法避免水平扩展。同时可以考虑使用弹性方式自动检测负载增加，自动添加计算资源。</li>
+<li>扩展能力往往基于某些假设，在项目初期，应该快速迭代推出产品功能，比应对不可知的扩展性更重要。</li>
+</ul>
+</li>
+</ol>
+<h1 id="可维护性（Maintainability）"><a href="#可维护性（Maintainability）" class="headerlink" title="可维护性（Maintainability）"></a>可维护性（Maintainability）</h1><p>随着时间的推移，许多新的人员参与到系统开发和运维，以维护现有功能或适配新场景等，系统都应高效运转。</p>
+<p>软件的大部分成本并不在最初的开发阶段，而是在于整个生命周期内持续的投入，这包括维护与缺陷修复，监控系统来保持正常运行、故障排查、适配新平台、搭配新场景、技术缺陷的完善以及增加新功能等。</p>
+<ol>
+<li>一些操作应该是自动化的，使得运维更加轻松。同时使得日常工作变得更简单，让团队能够专注于高附加值的任务。</li>
+<li>降低系统复杂性可以提高软件的可维护性。通过抽象消除复杂性，隐藏实现细节，对外提供干净简单的接口。</li>
+<li>架构设计的目标还应该考虑轻松的修改系统，让其适应不断变化的需求。</li>
+</ol>
 
             </article>
             <hr>
@@ -251,7 +243,7 @@
                     
                       <a class="hover-with-bg" href="/categories/读书笔记/">读书笔记</a>
                     
-                      <a class="hover-with-bg" href="/categories/读书笔记/Flink基础教程/">Flink基础教程</a>
+                      <a class="hover-with-bg" href="/categories/读书笔记/数据密集型应用系统设计/">数据密集型应用系统设计</a>
                     
                   </div>
                 
@@ -259,9 +251,9 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/java/">java</a>
+                      <a class="hover-with-bg" href="/tags/数据/">数据</a>
                     
-                      <a class="hover-with-bg" href="/tags/Flink/">Flink</a>
+                      <a class="hover-with-bg" href="/tags/架构/">架构</a>
                     
                   </div>
                 
@@ -274,18 +266,12 @@
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/2020/07/22/《数据密集型应用系统设计》-第一章读书笔记/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">《数据密集型应用系统设计》-第一章读书笔记</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/2018/11/09/论软件可靠性设计技术的应用/">
-                        <span class="hidden-mobile">论软件可靠性设计技术的应用</span>
+                      <a href="/2018/12/05/《Flink基础教程》-读书笔记1/">
+                        <span class="hidden-mobile">《Flink基础教程》--读书笔记1</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -450,7 +436,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "《Flink基础教程》--读书笔记1&nbsp;",
+        "《数据密集型应用系统设计》-第一章读书笔记&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,
