@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="keon">
+  <meta name="keywords" content="">
+  <title>《数据密集型应用系统设计》-第二章读书笔记 - keon随便写写</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github-gist.min.css" />
+  
+
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>keon随便写写</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2020-07-23 14:40">
+      2020年7月23日 下午
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      29
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <p>《数据密集型应用系统设计》第二章的标题是数据模型与查询语言。大部分应用都是通过一层一层叠加数据模型进行应用构建，复杂的应用可能会有很多的中间层，但核心思想都是通过提供一个简洁的数据模型来隐藏下层的复杂性。本章介绍一系列用于数据存储和查询的通用数据模型，讨论多重查询语言并比较它们的使用场景。</p>
+<h1 id="关系模型与文档模型"><a href="#关系模型与文档模型" class="headerlink" title="关系模型与文档模型"></a>关系模型与文档模型</h1><p>目前最著名的数据模型可能是SQL，它是基于关系模型：数据呗组织成关系（relations），在SQL中称为表（table），其中每个关系都是元组（tuples）的无序集合（行）。关系模型的目标就是将实现细节隐藏在更简洁的接口后面。</p>
+<p>除了关系模式，业界也出现了很多竞争技术，如对象数据库、xml数据库等，但都无一持久。进入21世纪后，NoSQL成为了一个新的竞争者，NoSQL有着很多自身独有的优势。目前看来后续一段时间内，关系数据库很可能继续与各种非关系数据存储一起使用。</p>
+<blockquote>
+<p>NoSQL的特性：</p>
+<ul>
+<li>比关系数据库更好的扩展性，支持大数据集或更高的吞吐量</li>
+<li>免费开源而不是商业</li>
+<li>关系型无法很好支持的特定操作</li>
+<li>更具动态和表达力的数据模型</li>
+</ul>
+</blockquote>
+<h2 id="对象-关系不匹配"><a href="#对象-关系不匹配" class="headerlink" title="对象-关系不匹配"></a>对象-关系不匹配</h2><p>数据储存在关系表中，应用层代码中的对象与表、行和列的数据库模型之间需要一个笨拙的转换层。像一些场景（如简历等）的数据，用JSON表示会比较合适，查询和维护时，只需要操作一个地方即可。这个是文档型数据的优势。</p>
+<h2 id="多对一与多对多的关系"><a href="#多对一与多对多的关系" class="headerlink" title="多对一与多对多的关系"></a>多对一与多对多的关系</h2><p>在一些场景中，对关系的引用比较敏感，如以下场景。为了减少重复冗余数据，保证数据的一致性，这正是数据库规范化的核心思想。</p>
+<ul>
+<li>输入项需符合规范</li>
+<li>避免歧义（字面相同，但含义不同的数据）</li>
+<li>易于更新</li>
+<li>本地化支持</li>
+<li>更好的搜索支持</li>
+</ul>
+<p>像这种需要表达多对一的关系，并不是很适合文档模型。如果数据库本身不支持联结，则需要在应用程序的代码中实现，导致代码的复杂型增加。</p>
+<h2 id="文档数据库发展的历史借鉴"><a href="#文档数据库发展的历史借鉴" class="headerlink" title="文档数据库发展的历史借鉴"></a>文档数据库发展的历史借鉴</h2><p>为了解决数据表达的局限性，历史上提出了关系模型和网络模型，两个模式也经历了很多争论。</p>
+<h3 id="网络模型"><a href="#网络模型" class="headerlink" title="网络模型"></a>网络模型</h3><p>网络模型由一个称为数据系统语言会议的委员会进行标准化，被称为CODASYL模型。在该模型中，一个记录可以有多个父节点，记录直接的连接不是外键，而更像是编程语言中的指针。访问记录的方法是选择一条始于根记录的路径，并沿着相关的链接依次访问。访问路径更像是遍历链表：从链表的头部开始，一次查看一个记录，知道找到所需的记录。<br>该模型能够有效的利用硬件资源，但最大的问题是查询和更新数据库异常复杂而没有灵活性，需要大量的手写数据库查询代码。</p>
+<h3 id="关系模型"><a href="#关系模型" class="headerlink" title="关系模型"></a>关系模型</h3><p>关系模型定义了所有数据的格式，没有复杂的嵌套结构，也没有复杂的访问路径。可以读取表中的任何一行或者所有行，支持任意条件的查询。同时也可以根据某些列作为键匹配特定行的数据。<br>在关系数据库中，查询优化器自动决定以何种顺序执行查询，以及使用哪些索引。这些相当于网络模型的路径，但这些无需开发者关注，而是通过查询优化器自动进行处理。</p>
+<h3 id="文档模型"><a href="#文档模型" class="headerlink" title="文档模型"></a>文档模型</h3><p>文档模型在表达多对一和多对多的关系时，与关系数据库没有本质不同，都只能通过唯一的标识符引用。</p>
+<h2 id="关系数据库与文档数据库现状"><a href="#关系数据库与文档数据库现状" class="headerlink" title="关系数据库与文档数据库现状"></a>关系数据库与文档数据库现状</h2><p>文档数据库模型主要优点是模式灵活，由于局部性而带来较好的性能。同时对于应用来说，它的数据结构也更加接近应用程序。关系模型则是强在联结操作、多对一、多对多关系更简洁的表达上。</p>
+<h3 id="哪种数据模型的应用代码更简单"><a href="#哪种数据模型的应用代码更简单" class="headerlink" title="哪种数据模型的应用代码更简单"></a>哪种数据模型的应用代码更简单</h3><p>应用数据具有类似文档的结构，使用文档模型更为合适，如果使用了多对多关系，那么文档模型很有可能导致应用程序代码更复杂、性能更差。应用代码的复杂性取决于数据项之前的关系类型，对于高度关联的数据，文档模型不太适合，关系模型可以胜任，而图模型最为自然。</p>
+<h3 id="文档模型中的模式灵活性"><a href="#文档模型中的模式灵活性" class="headerlink" title="文档模型中的模式灵活性"></a>文档模型中的模式灵活性</h3><p>文档数据库存进行数据存储时，一般不会对数据内容进行校验，因此在数据读取是，应用需要自己保证读取数据的完整性。这种差异还提现在数据的结构改变时，关系数据库需要对存量的数据进行数据修复。</p>
+<h3 id="查询的数据局部性"><a href="#查询的数据局部性" class="headerlink" title="查询的数据局部性"></a>查询的数据局部性</h3><p>同一文档通常存储在连续区域，需要进行频繁访问时，可以快速返回整个文档。如果数据存在多个表中，则需要多次检索，消耗更多的IO时间。</p>
+<h3 id="文档数据库与关系数据库的融合"><a href="#文档数据库与关系数据库的融合" class="headerlink" title="文档数据库与关系数据库的融合"></a>文档数据库与关系数据库的融合</h3><p>随时时间推移，关系型数据库正在对文档的一些特性进行支持，即能处理文档类数据，还能对其执行行关系查询。</p>
+<h1 id="数据查询语言"><a href="#数据查询语言" class="headerlink" title="数据查询语言"></a>数据查询语言</h1><p>命令式语言告诉计算机以特定顺序执行某些操作。你完全可以推理整个过程，逐行遍历代码、评估相关条件、更新对应的变量，并决定是否执行。<br>声明式语言，则只需指定所需的数据模式，结果需满足什么条件，以及如何转换数据，而不需要致命如何实现这一目标。数据库系统的查询优化器会决定采用哪些索引和联结，以及用如何顺序来执行查询的各个语句。对外隐藏了数据库引擎的很多实现细节。</p>
+<h2 id="Web上的声明式查询"><a href="#Web上的声明式查询" class="headerlink" title="Web上的声明式查询"></a>Web上的声明式查询</h2><p>对于Web浏览器的例子，使用声明式CSS样式比用Javascript命令式操作样式容易的多。类似地，在数据库中，像SQL这样的声明式查询语言比命令式查询APIs要好得多。</p>
+<h2 id="MapReduce查询"><a href="#MapReduce查询" class="headerlink" title="MapReduce查询"></a>MapReduce查询</h2><p>MapReduce既不是声明式查询语言，也不是一个完全命令式的查询API，而是介于两者之前：查询的逻辑用代码片段来说表示，这些代码片段可以被处理框架重复地调用。</p>
+<p>MapReduce是一个相当底层的变成模型，用于在计算机群众分布执行。而SQL这样的更高层次的查询语言可以通过一些MapReduce操作pipeline来实现。</p>
+<h1 id="图状数据模型"><a href="#图状数据模型" class="headerlink" title="图状数据模型"></a>图状数据模型</h1><p>多对多关系用图表示比较合适，图由两种对象组成：顶点（也称为结点或实体）和边（也称为关系或弧）。很多数据可以建模为图。</p>
+<p>有多重不同但相关的方法可以构建和查询图中的数据。属性图模型（property graph）和三元存储模型（triple-store）</p>
+<p>示例。<br><img src="/2020/07/23/《数据密集型应用系统设计》-第二章读书笔记/IMG54.jpeg" srcset="/img/loading.gif" alt=""></p>
+<h2 id="属性图"><a href="#属性图" class="headerlink" title="属性图"></a>属性图</h2><p>在属性图模型中，每个顶点包括：</p>
+<ul>
+<li>唯一的标识符</li>
+<li>出边的集合</li>
+<li>入边的集合</li>
+<li>属性的集合（键-值对）</li>
+</ul>
+<p>每个边包括：</p>
+<ul>
+<li>唯一的标识符</li>
+<li>边开始的顶点（尾部顶点）</li>
+<li>边结束的顶点（头部顶点）</li>
+<li>描述两个顶点间关系类型的标签</li>
+<li>属性的集合（键-值对）</li>
+</ul>
+<p>可以将图存储看做由两个关系表组成，一个用于顶点，另一个用于边。关于图模型一些值得注意的地方：</p>
+<ol>
+<li>任何顶点都可以连接到其他任何顶点。没有模式限制哪种事物可以或不可以关联。</li>
+<li>给定某个顶点，可以高效地得到它的所有入边和出边，从而遍历图。</li>
+<li>通过对不同类型的关系使用不同的标签，可以在单个图中存储多重不同类型的信息，同时仍然保持整洁的数据模型。</li>
+</ol>
+<p>用关系模式来表示属性图<br><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> vertices (
+	vertex_id <span class="hljs-built_in">integer</span> PRIMARY <span class="hljs-keyword">KEY</span>,
+	properties <span class="hljs-keyword">json</span>
+);
+
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> edges (
+	edge_id <span class="hljs-built_in">integer</span> PRIMARY <span class="hljs-keyword">KEY</span>,
+	tail_vertex <span class="hljs-built_in">integer</span> <span class="hljs-keyword">REFERENCES</span> vertices(vertex_id),
+	head_vertex <span class="hljs-built_in">integer</span> <span class="hljs-keyword">REFERENCES</span> vertices(vertex_id),
+	label <span class="hljs-built_in">text</span>,
+	properties <span class="hljs-keyword">json</span>
+)
+
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">INDEX</span> edges_tails <span class="hljs-keyword">ON</span> edges(tail_vertex);
+<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">INDEX</span> edges_heads <span class="hljs-keyword">ON</span> edges(head_vertex);</code></pre></p>
+<h2 id="Cypher查询语言"><a href="#Cypher查询语言" class="headerlink" title="Cypher查询语言"></a>Cypher查询语言</h2><p>Cypher是一种用于属性图的声明式查询语言，最早为Neo4j图形数据库而创建。</p>
+<p>对应上述示例，采用Cypher方式进行数据插入：<br><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> 
+	(NAmerica:Location &#123;<span class="hljs-keyword">name</span>:<span class="hljs-string">'North America'</span>, <span class="hljs-keyword">type</span>:<span class="hljs-string">'continent'</span>&#125;),
+	(USA:Location &#123;<span class="hljs-keyword">name</span>:<span class="hljs-string">'United States'</span>, <span class="hljs-keyword">type</span>:<span class="hljs-string">'country'</span>&#125;),
+	(Idaho:Location &#123;<span class="hljs-keyword">name</span>:<span class="hljs-string">'Idaho'</span>, <span class="hljs-keyword">type</span>:<span class="hljs-string">'state'</span>&#125;),
+	(Lucy:Person &#123;<span class="hljs-keyword">name</span>:<span class="hljs-string">'Idaho'</span>, <span class="hljs-keyword">type</span>:<span class="hljs-string">'state'</span>&#125;),
+	(Idaho) -[:<span class="hljs-keyword">WITHIN</span>]-&gt; (USA) -[:<span class="hljs-keyword">WITHIN</span>]-&gt; (NAmerica),
+	(Lucy) -[:BORN_IN]-&gt; (Idaho)</code></pre></p>
+<p>采用Cypher查询从美国移民到欧洲的人员名单:<br><pre><code class="hljs sql">MATCH
+	(person) -[:BORN_IN]-&gt; () -[:WITHIN*o..]-&gt; (us:Location &#123;name:'United States'&#125;),
+	(person) -[:LIVES_IN]-&gt; () -[:WITHIN*o..]-&gt; (en:Location &#123;name:'Europe'&#125;)
+RETURN person.name</code></pre></p>
+<h2 id="SQL中的图查询"><a href="#SQL中的图查询" class="headerlink" title="SQL中的图查询"></a>SQL中的图查询</h2><p>在关系型数据库中，通常会预先知道查询中需要哪些join操作。而对于图查询，在找到要查找的顶点之前，可能需要遍历数量未知的边。也就是说，join操作数量并不是预先确定的。在SQL中可以采用递归公用表达式来执行与上述示例相同的查询。</p>
+<h2 id="三元存储与SPARQL"><a href="#三元存储与SPARQL" class="headerlink" title="三元存储与SPARQL"></a>三元存储与SPARQL</h2><p>三元存储模式几乎与属性图模型相同，在三元存储中，所有信息都以三部分形式存储（主体，谓语，客体）。三元组的主体相当于图中的顶点，而客体存在以下两种情况：1. 三元组的谓语与客体分别相当于主题（顶点）属性中的键和值；2. 谓语是图中的边，主体是尾部顶点，而客体是头部顶点。</p>
+<p>使用三元组表示上述示例：<br><pre><code class="hljs sql">@prefix : &lt;urn:example:&gt;.
+_:lucy a :Person; name "Lucy"; :bornIn _:idaho.
+_:idaho a :Location; :name "Idaho"; type "state"; :within _:usa.
+_:usa a :Location; :name "United States"; :type "country"; :within _:namerica.
+:namerica a :Location; :name "NOrth America"; :type "continent".</code></pre></p>
+<p>后面的RDF数据模型和SPARQL都是一些比较细节具体的信息，在这就不展开叙述了。</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>在本章主要是介绍了一些不同的数据模型，每种数据模型都有自己的适用范围，同时每个数据模型也都有自己的查询语言和框架。</p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/读书笔记/">读书笔记</a>
+                    
+                      <a class="hover-with-bg" href="/categories/读书笔记/数据密集型应用系统设计/">数据密集型应用系统设计</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/数据/">数据</a>
+                    
+                      <a class="hover-with-bg" href="/tags/架构/">架构</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2020/07/22/《数据密集型应用系统设计》-第一章读书笔记/">
+                        <span class="hidden-mobile">《数据密集型应用系统设计》-第一章读书笔记</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 0,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "《数据密集型应用系统设计》-第二章读书笔记&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    <!-- Baidu Analytics -->
+    <script defer>
+      var _hmt = _hmt || [];
+      (function () {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?295a509b858b3cbf323c9e357db6a444";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+</body>
+</html>
